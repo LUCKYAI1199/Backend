@@ -23,9 +23,9 @@ RUN pip install --upgrade pip setuptools wheel \
 # Copy backend source
 COPY . /app
 
-# Expose port
+# Expose default port (Render will pass $PORT)
 EXPOSE 5000
 
-# Default command uses gunicorn with eventlet worker
+# Default command uses gunicorn with eventlet worker and binds to $PORT
 # If you prefer Python directly, replace CMD with: ["python", "app.py"]
-CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["sh", "-c", "gunicorn -k eventlet -w 1 -b 0.0.0.0:${PORT:-5000} app:app"]
