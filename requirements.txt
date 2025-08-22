@@ -1,0 +1,66 @@
+# Flask Backend Requirements for Trading Platform
+
+# Core Flask framework
+Flask==2.3.3
+Flask-CORS==4.0.0
+Flask-SocketIO==5.3.6
+
+# WebSocket support
+python-socketio==5.8.0
+python-engineio==4.7.1
+
+# Enable WebSocket transport when using the default Werkzeug server
+simple-websocket==0.10.1
+eventlet==0.36.1
+
+# Data processing and analysis
+pandas==2.1.1
+numpy==1.24.3
+
+# API and HTTP requests
+requests==2.31.0
+urllib3==2.0.4
+
+# Date and time handling
+python-dateutil==2.8.2
+
+# Async support
+asyncio-mqtt==0.16.1
+
+# Logging and utilities
+python-dotenv==1.0.0
+
+# Trading and market data (for real Kite integration)
+kiteconnect==4.2.0
+
+# Development and testing
+pytest==7.4.2
+pytest-asyncio==0.21.1
+
+# Security
+Werkzeug==2.3.7
+
+# JSON handling
+ujson==5.8.0
+
+# Time zone handling
+pytz==2023.3
+
+# Environment variables
+python-decouple==3.8
+
+# Validation
+marshmallow==3.20.1
+
+# Caching (optional)
+redis==4.6.0
+
+# Database
+SQLAlchemy==2.0.21
+# psycopg2-binary==2.9.7  # For PostgreSQL
+
+# Monitoring and metrics (optional)
+# prometheus-client==0.17.1
+
+# Rate limiting (optional)
+# Flask-Limiter==3.5.0

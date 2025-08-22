@@ -1,0 +1,203 @@
+"""
+Market Data Service
+Handles real-time market data operations using Kite API
+"""
+
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+from services.kite_api_service import kite_api_service
+
+logger = logging.getLogger(__name__)
+
+class MarketDataService:
+    """Service for handling real-time market data using Kite API"""
+    
+    def __init__(self):
+        self.kite_service = kite_api_service
+        self.cache = {}
+        self.cache_timeout = 30  # 30 seconds
+        logger.info("MarketDataService initialized with Kite API")
+    
+    def _is_cache_valid(self, cache_key: str) -> bool:
+        """Check if cache is valid"""
+        if cache_key not in self.cache:
+            return False
+        
+        cache_time = self.cache[cache_key].get('timestamp')
+        if not cache_time:
+            return False
+        
+        return (datetime.now() - cache_time).seconds < self.cache_timeout
+    
+    async def get_spot_price(self, symbol: str) -> Dict:
+        """Get current spot price for a symbol"""
+        try:
+            cache_key = f"spot_{symbol}"
+            
+            # Check cache
+            if self._is_cache_valid(cache_key):
+                return self.cache[cache_key]['data']
+            
+            # Fetch from Kite API
+            spot_data = self.kite_service.get_spot_price(symbol)
+            
+            # Format response
+            result = {
+                'symbol': symbol,
+                'ltp': spot_data['spot_price'],
+                'change': spot_data['change'],
+                'change_percent': spot_data['change_percent'],
+                'timestamp': spot_data['timestamp'],
+                'volume': spot_data['volume'],
+                'previous_close': spot_data['previous_close']
+            }
+            
+            # Cache the result
+            self.cache[cache_key] = {
+                'data': result,
+                'timestamp': datetime.now()
+            }
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error getting spot price for {symbol}: {e}")
+            return {
+                'symbol': symbol,
+                'ltp': 0,
+                'change': 0,
+                'change_percent': 0,
+                'timestamp': datetime.now().isoformat(),
+                'volume': 0,
+                'previous_close': 0,
+                'error': str(e)
+            }
+    
+    def get_spot_price_sync(self, symbol: str) -> Dict:
+        """Synchronous version of get_spot_price"""
+        try:
+            cache_key = f"spot_{symbol}"
+            
+            # Check cache
+            if self._is_cache_valid(cache_key):
+                return self.cache[cache_key]['data']
+            
+            # Fetch from Kite API
+            spot_data = self.kite_service.get_spot_price(symbol)
+            
+            # Format response
+            result = {
+                'symbol': symbol,
+                'ltp': spot_data['spot_price'],
+                'change': spot_data['change'],
+                'change_percent': spot_data['change_percent'],
+                'timestamp': spot_data['timestamp'],
+                'volume': spot_data['volume'],
+                'previous_close': spot_data['previous_close']
+            }
+            
+            # Cache the result
+            self.cache[cache_key] = {
+                'data': result,
+                'timestamp': datetime.now()
+            }
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error getting spot price for {symbol}: {e}")
+            return {
+                'symbol': symbol,
+                'ltp': 0,
+                'change': 0,
+                'change_percent': 0,
+                'timestamp': datetime.now().isoformat(),
+                'volume': 0,
+                'previous_close': 0,
+                'error': str(e)
+            }
+    
+    def get_market_status(self) -> Dict:
+        """Get current market status"""
+        try:
+            # Get market status from Kite API (if available)
+            # For now, return a simple status based on time
+            now = datetime.now()
+            
+            # Market hours: 9:15 AM to 3:30 PM (Indian time)
+            market_start = now.replace(hour=9, minute=15, second=0, microsecond=0)
+            market_end = now.replace(hour=15, minute=30, second=0, microsecond=0)
+            
+            is_open = market_start <= now <= market_end and now.weekday() < 5
+            
+            return {
+                'market_open': is_open,
+                'market_status': 'open' if is_open else 'closed',
+                'timestamp': datetime.now().isoformat(),
+                'next_open': market_start.isoformat() if not is_open else None,
+                'next_close': market_end.isoformat() if is_open else None
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting market status: {e}")
+            return {
+                'market_open': False,
+                'market_status': 'unknown',
+                'timestamp': datetime.now().isoformat(),
+                'error': str(e)
+            }
+    
+    def get_multiple_quotes(self, symbols: List[str]) -> Dict[str, Dict]:
+        """Get quotes for multiple symbols"""
+        try:
+            results = {}
+            for symbol in symbols:
+                results[symbol] = self.get_spot_price_sync(symbol)
+            return results
+            
+        except Exception as e:
+            logger.error(f"Error getting multiple quotes: {e}")
+            return {}
+    
+    def get_ohlc_data(self, symbol: str) -> Dict:
+        """Get OHLC data for a symbol"""
+        try:
+            # Get spot price which includes some OHLC info
+            spot_data = self.get_spot_price_sync(symbol)
+            
+            return {
+                'symbol': symbol,
+                'open': spot_data.get('previous_close', 0),  # Simplified
+                'high': spot_data.get('ltp', 0) * 1.01,     # Estimated
+                'low': spot_data.get('ltp', 0) * 0.99,      # Estimated
+                'close': spot_data.get('ltp', 0),
+                'volume': spot_data.get('volume', 0),
+                'timestamp': spot_data.get('timestamp')
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting OHLC data for {symbol}: {e}")
+            return {
+                'symbol': symbol,
+                'open': 0,
+                'high': 0,
+                'low': 0,
+                'close': 0,
+                'volume': 0,
+                'timestamp': datetime.now().isoformat(),
+                'error': str(e)
+            }
+    
+    def clear_cache(self):
+        """Clear all cached data"""
+        self.cache.clear()
+        logger.info("Market data cache cleared")
+    
+    def get_cache_stats(self) -> Dict:
+        """Get cache statistics"""
+        return {
+            'total_entries': len(self.cache),
+            'entries': list(self.cache.keys()),
+            'cache_timeout': self.cache_timeout
+        }
