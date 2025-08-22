@@ -17,6 +17,7 @@ eventlet==0.36.1
 # Data processing and analysis
 pandas==2.3.2
 numpy==2.3.2
+scipy==1.13.1
 
 # API and HTTP requests
 requests==2.31.0
