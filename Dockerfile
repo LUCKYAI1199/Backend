@@ -16,16 +16,16 @@ ENV TZ=Asia/Kolkata
 WORKDIR /app
 
 # Copy backend requirements and install
-COPY backend/requirements.txt /app/backend/requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip setuptools wheel \
-  && pip install -r /app/backend/requirements.txt
+  && pip install -r /app/requirements.txt
 
 # Copy backend source
-COPY backend /app/backend
+COPY . /app
 
 # Expose port
 EXPOSE 5000
 
 # Default command uses gunicorn with eventlet worker
-# If you prefer Python directly, replace CMD with: ["python", "backend/app.py"]
-CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "backend.app:app"]
+# If you prefer Python directly, replace CMD with: ["python", "app.py"]
+CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "app:app"]
