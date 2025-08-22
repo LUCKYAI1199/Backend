@@ -1,3 +1,4 @@
+--only-binary=:all:
 # Flask Backend Requirements for Trading Platform
 
 # Core Flask framework
