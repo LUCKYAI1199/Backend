@@ -15,7 +15,7 @@ simple-websocket==0.10.1
 eventlet==0.36.1
 
 # Data processing and analysis
-pandas==2.2.2
+pandas==2.3.2
 numpy==1.26.4
 
 # API and HTTP requests
