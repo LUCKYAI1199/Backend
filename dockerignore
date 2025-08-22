@@ -9,8 +9,6 @@ __pycache__
 *.pyd
 *.so
 *.log
-node_modules
-frontend
 **/*.sqlite3
 **/*.db
 options.db
@@ -23,3 +21,10 @@ htmlcov
 build
 dist
 site
+
+# Exclude repo root and frontend when building from backend context
+../frontend
+../node_modules
+../.git
+../.github
+../.vscode
