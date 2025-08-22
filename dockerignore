@@ -1,0 +1,25 @@
+# Exclude local dev files from Docker context
+.git
+.gitignore
+.vscode
+.idea
+__pycache__
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.log
+node_modules
+frontend
+**/*.sqlite3
+**/*.db
+options.db
+.env
+*.env
+.pytest_cache
+.mypy_cache
+coverage.xml
+htmlcov
+build
+dist
+site
