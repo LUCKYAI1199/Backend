@@ -60,6 +60,8 @@ redis==4.6.0
 SQLAlchemy==2.0.21
 # psycopg2-binary==2.9.7  # For PostgreSQL
 
+gunicorn==21.2.0
+
 # Monitoring and metrics (optional)
 # prometheus-client==0.17.1
 
