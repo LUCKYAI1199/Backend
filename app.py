@@ -3,6 +3,17 @@ Main Flask Application
 Entry point for the trading platform backend
 """
 
+# IMPORTANT: If using eventlet, monkey_patch must happen before importing anything else
+import platform as _platform
+_EVENTLET_AVAILABLE = False
+if _platform.system() != 'Windows':
+    try:
+        import eventlet  # type: ignore
+        eventlet.monkey_patch()
+        _EVENTLET_AVAILABLE = True
+    except Exception:
+        _EVENTLET_AVAILABLE = False
+
 import os
 import logging
 from flask import Flask, jsonify
@@ -12,17 +23,6 @@ from flask_cors import CORS
 
 # Import configuration
 from config.settings import Config
-
-# Prefer eventlet for WebSocket support if available (disable on Windows)
-import platform
-_EVENTLET_AVAILABLE = False
-if platform.system() != 'Windows':
-    try:
-        import eventlet
-        eventlet.monkey_patch()
-        _EVENTLET_AVAILABLE = True
-    except Exception:
-        _EVENTLET_AVAILABLE = False
 
 # Import API routes
 from api.routes import api_blueprint
